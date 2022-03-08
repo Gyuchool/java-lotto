@@ -37,10 +37,14 @@ public class InputView {
         }
     }
 
-    public static String[] askInputWinningNumber() {
+    public static Set<Integer> askInputWinningNumber() {
         System.out.println(INPUT_WINNING_NUMBER_MESSAGE);
         String input = scanner.nextLine();
-        return input.split(LOTTO_NUMBER_DELIMITER);
+        String[] split = input.split(LOTTO_NUMBER_DELIMITER);
+        return Arrays.stream(split)
+                .map(Integer::valueOf)
+                .collect(Collectors.toSet());
+
     }
 
     public static int askManualLottoCount() {
@@ -48,12 +52,18 @@ public class InputView {
         return convertToInt(scanner.nextLine());
     }
 
-    public static List<String[]> askManualLottoNumbers(int manualLottoCount) {
+    public static List<Set<Integer>> askManualLottoNumbers(int manualLottoCount) {
         System.out.println(INPUT_MANUAL_LOTTO_NUMBERS);
-        return IntStream.range(0, manualLottoCount)
+        List<Set<Integer>> list = new ArrayList<>();
+
+        IntStream.range(0, manualLottoCount)
                 .mapToObj(i -> scanner.nextLine())
                 .map(input -> input.split(LOTTO_NUMBER_DELIMITER))
-                .collect(Collectors.toList());
-
+                .map(s -> Integer.valueOf(Arrays.toString(s)))
+                .collect(Collectors.collectingAndThen(
+                        Collectors.toSet(),
+                        list::add
+                ));
+        return list;
     }
 }

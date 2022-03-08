@@ -4,36 +4,32 @@ import controller.dto.LottosDto;
 import controller.dto.StatisticDto;
 import domain.*;
 import service.LottoService;
+import service.StatisticService;
 
 import java.util.List;
+import java.util.Set;
 
 public class LottoController {
 
     private final LottoService lottoService;
+    private final StatisticService statisticService;
 
-    public LottoController(LottoService lottoService) {
+    public LottoController(LottoService lottoService, StatisticService statisticService) {
         this.lottoService = lottoService;
+        this.statisticService = statisticService;
     }
 
-    public LottosDto purchase(int inputMoney, int manualLottoCount, List<String[]> manualLottoNumbers) {
-        Money money = lottoService.createMoney(inputMoney);
-        int autoLottoCount = lottoService.getAutoLottoCount(money, manualLottoCount);
-        Lottos lottos = lottoService.generateLottos(manualLottoNumbers, autoLottoCount);
+    public LottosDto purchase(int inputMoney, List<Set<Integer>> manualLottoNumbers) {
 
-        return LottosDto.from(lottos, lottos.size());
+        Lottos lottos = lottoService.purcahse(inputMoney, manualLottoNumbers);
+        return LottosDto.from(lottos, lottos.size(), inputMoney);
     }
 
-    public StatisticDto winningResult(String[] inputWinningNumber,
+    public StatisticDto winningResult(Set<Integer> inputWinningNumber,
                                       int inputBonusBall,
-                                      List<String[]> manualLottoNumbers,
-                                      int inputMoney) {
-        WinningLotto winningLotto = lottoService.generateWinningLotto(
-                new ManualLottoGenerator(inputWinningNumber),
-                inputBonusBall);
-
-        Lottos lottos = lottoService.generateLottos(manualLottoNumbers, 0);
-        Statistic winningStatistics = lottos.getWinningStatistics(winningLotto);
-        Money money = lottoService.createMoney(inputMoney);
-        return StatisticDto.from(winningStatistics, winningStatistics.getProfitRate(money));
+                                      LottosDto lottosDto) {
+        Statistic winningStatistics  = lottoService.getWinningResult(inputWinningNumber, inputBonusBall, lottosDto);
+        double profitRate = statisticService.getProfitRate(winningStatistics, lottosDto.getMoney());
+        return StatisticDto.from(winningStatistics, profitRate);
     }
 }

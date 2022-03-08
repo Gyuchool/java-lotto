@@ -1,9 +1,9 @@
 package view;
 
-import controller.dto.LottoDto;
 import controller.dto.LottosDto;
 import controller.dto.StatisticDto;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static view.InputView.LOTTO_NUMBER_DELIMITER;
@@ -29,8 +29,8 @@ public class OutputView {
         System.out.println();
     }
 
-    private static void printLotto(LottoDto lottoDto) {
-        String LottoNumbers = lottoDto.getNumbers()
+    private static void printLotto(Set<Integer> numbers) {
+        String LottoNumbers = numbers
                 .stream()
                 .sorted()
                 .map(String::valueOf)
